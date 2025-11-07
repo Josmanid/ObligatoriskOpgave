@@ -1,5 +1,6 @@
 package com.example.obligatoriskopgave.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -7,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -32,6 +34,8 @@ import kotlin.reflect.full.memberProperties
 @Composable
 fun DetailScreen(
     item: String,
+    onItemDeleted: (Shopping) -> Unit,
+    userEmail: String? = "",
     navController: NavController,
     viewModel: ShoppingViewModelState
 ) {
@@ -54,11 +58,24 @@ fun DetailScreen(
                 )
             }
         ) { innerPadding ->
+            Column {
             LazyColumn(modifier = Modifier.padding(innerPadding)) {
                 items(fields) { (label, value) ->
                     Text(text = "$label: $value", modifier = Modifier.padding(vertical = 4.dp))
                 }
             }
+                if (shoppingItem.sellerEmail == userEmail) {
+                    IconButton(onClick = {
+                        onItemDeleted(shoppingItem)
+                        navController.popBackStack()
+                    }) {
+                        Icon(
+                            imageVector = Icons.Filled.Delete,
+                            contentDescription = "Remove ${shoppingItem.description}"
+                        )
+                    }
+                }
+        }
         }
     }
 }

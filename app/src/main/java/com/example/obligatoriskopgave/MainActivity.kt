@@ -56,14 +56,16 @@ fun MainScreen(
     }
     LaunchedEffect(currentUser) {
         //When logged in navigate to addscreen
-        if (currentUser != null){
-            navController.navigate(NavRoutes.AddScreen.route){
+        if (currentUser != null) {
+            navController.navigate(NavRoutes.AddScreen.route) {
                 popUpTo(NavRoutes.ListScreen.route)
             }
-        } else{
+        } else {
             // when logged out navigate back to Listscreen
-            navController.popBackStack(route = NavRoutes.ListScreen.route,
-                inclusive = false)
+            navController.popBackStack(
+                route = NavRoutes.ListScreen.route,
+                inclusive = false
+            )
         }
     }
     NavHost(
@@ -82,10 +84,11 @@ fun MainScreen(
                     navController.navigate(NavRoutes.DetailScreen.route + "/${shopping.id}")
                 },
                 onLoginClick = { authViewModel.onLogin() },
+                onLogoutClick = { authViewModel.signOut() },
                 onSortByItemTitle = { ascending -> viewModel.sortByItemTitle(ascending) },
                 onSortByItemPrice = { ascending -> viewModel.sortByItemPrice(ascending) },
-                onFilter = {query,byPrice -> viewModel.filterItems(query,byPrice)},
-                onAddClick = {navController.navigate(NavRoutes.AddScreen.route)}
+                onFilter = { query, byPrice -> viewModel.filterItems(query, byPrice) },
+                onAddClick = { navController.navigate(NavRoutes.AddScreen.route) }
             ) // here we pass the constructor
 
         }
@@ -94,7 +97,7 @@ fun MainScreen(
                 addItem = { newItem -> viewModel.add(newItem) },
                 onItemDeleted = { item -> viewModel.remove(item.id) },
                 userEmail = currentUser?.email ?: "unknown@example.com",
-                navigateBack = {navController.popBackStack()},
+                navigateBack = { navController.popBackStack() },
                 shoppingListvar = shoppingListvar,
             )
         }
@@ -104,7 +107,9 @@ fun MainScreen(
             //Show the DetailScreen
             DetailScreen(
                 item = item,
+                onItemDeleted = { item -> viewModel.remove(item.id) },
                 navController = navController,
+                userEmail = currentUser?.email,
                 viewModel = viewModel
             )
 

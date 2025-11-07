@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -61,6 +62,7 @@ fun ListScreen(
     authViewModel: AuthViewModel? = null,
     onShoppingSelected: (Shopping) -> Unit = {},
     onLoginClick: () -> Unit = {},
+    onLogoutClick: () -> Unit = {},
     onSortByItemTitle: (Boolean) -> Unit = {},
     onSortByItemPrice: (Boolean) -> Unit = {},
     onFilter: (query: String, byPrice: Boolean) -> Unit = { _, _ -> },
@@ -84,8 +86,14 @@ fun ListScreen(
                     }
                 },
                 actions = {
-                    Button(onClick = { onLoginClick() }) {
-                        Text("Login")
+                    if (userEmail == null) {
+                        Button(onClick = { onLoginClick() }) {
+                            Text("Login")
+                        }
+                    } else{
+                        Button(onClick = {onLogoutClick()}) {
+                            Text("Logout")
+                        }
                     }
                 }
             )
@@ -184,7 +192,8 @@ fun LazyList(
         )
 
     }
-    Row {   Button(onClick = { filterByPrice = !filterByPrice }) {
+    Row {   Button(onClick = { filterByPrice = !filterByPrice },
+        modifier = Modifier.testTag("modeButton")) {
         Text(if (filterByPrice) "Mode: Price" else "Mode: Title")
     }
         Button(
