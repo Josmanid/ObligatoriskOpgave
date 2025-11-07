@@ -33,21 +33,15 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-//Create composable to manage navigation
 @Composable
 fun MainScreen(
     viewModel: ShoppingViewModelState = viewModel(),
     authViewModel: AuthViewModel = viewModel()
 ) {
-    //Hold controlleren højt i hierarkiet, så den kan deles.
     val navController = rememberNavController()
-    // eneste viewmodel så vi deler den på siderne
     val shoppingListvar = viewModel.shoppingListvar.value
-    //Det er her du forbinder routes til dine screens
     val errorMessage = viewModel.errorMessage.value
-    // en variabel til at gemme den nuværende brugeren( her opdatering sker når nogen logger ind)
     val currentUser = authViewModel.user.value
-    // Show login dialog when isDialogShown is true
     if (authViewModel.isDialogShown) {
         LoginDialog(
             authViewModel = authViewModel,
@@ -55,13 +49,11 @@ fun MainScreen(
         )
     }
     LaunchedEffect(currentUser) {
-        //When logged in navigate to addscreen
         if (currentUser != null) {
             navController.navigate(NavRoutes.AddScreen.route) {
                 popUpTo(NavRoutes.ListScreen.route)
             }
         } else {
-            // when logged out navigate back to Listscreen
             navController.popBackStack(
                 route = NavRoutes.ListScreen.route,
                 inclusive = false
@@ -70,11 +62,9 @@ fun MainScreen(
     }
     NavHost(
         navController = navController,
-        startDestination = NavRoutes.ListScreen.route //the flow starts here
+        startDestination = NavRoutes.ListScreen.route
     ) {
         composable(NavRoutes.ListScreen.route) {
-            //Navigate to details on a specific item
-            //TODO: Login dialog?
             ListScreen(
                 shoppingListvar = shoppingListvar,
                 errorMessage = errorMessage,
@@ -89,7 +79,7 @@ fun MainScreen(
                 onSortByItemPrice = { ascending -> viewModel.sortByItemPrice(ascending) },
                 onFilter = { query, byPrice -> viewModel.filterItems(query, byPrice) },
                 onAddClick = { navController.navigate(NavRoutes.AddScreen.route) }
-            ) // here we pass the constructor
+            )
 
         }
         composable(NavRoutes.AddScreen.route) {
@@ -101,10 +91,10 @@ fun MainScreen(
                 shoppingListvar = shoppingListvar,
             )
         }
-        //We define a screen route that expects a value {item}. to come to it
+
         composable(NavRoutes.DetailScreen.route + "/{item}") { backStackEntry ->
             val item = backStackEntry.arguments?.getString("item") ?: "unknown"
-            //Show the DetailScreen
+
             DetailScreen(
                 item = item,
                 onItemDeleted = { item -> viewModel.remove(item.id) },

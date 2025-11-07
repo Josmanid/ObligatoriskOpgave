@@ -16,7 +16,6 @@ class ShoppingRepository {
 
     private val shoppingService: ShoppingService
 
-    // we want read only
     private val _shoppingList = mutableStateOf<List<Shopping>>(emptyList())
     private val _isLoadingItems = mutableStateOf(false)
     private val _errorMessage = mutableStateOf("")
@@ -134,7 +133,7 @@ class ShoppingRepository {
     }
     fun filterItems(query: String, byPrice: Boolean) {
         if (query.isEmpty()) {
-            getAllItems() // resets
+            getAllItems()
             return
         }
 

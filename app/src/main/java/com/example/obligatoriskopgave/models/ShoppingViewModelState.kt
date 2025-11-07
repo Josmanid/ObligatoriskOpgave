@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import com.example.obligatoriskopgave.repository.ShoppingRepository
 
-//Arver fra ViewModel, så den overlever konfigurationsændringer (rotation, tema-skift osv.).
+
 class ShoppingViewModelState : ViewModel() {
     private val repository = ShoppingRepository()
 

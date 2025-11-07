@@ -53,7 +53,7 @@ import com.example.obligatoriskopgave.models.AuthViewModel
 import com.example.obligatoriskopgave.models.ShoppingViewModelState
 import com.example.obligatoriskopgave.ui.theme.ObligatoriskOpgaveTheme
 
-@OptIn(ExperimentalMaterial3Api::class) // TopAppBar
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListScreen(
     shoppingListvar: List<Shopping>,
@@ -111,8 +111,7 @@ fun ListScreen(
             }
         }
     ) { innerPadding ->
-        // Main content
-        //Pass navController down to Shopping() otherwise we cant navigate
+
         ShoppingPanel(
             onShoppingSelected = onShoppingSelected, //pass down
             shoppingListvar = shoppingListvar,
@@ -128,7 +127,7 @@ fun ListScreen(
 
 @Composable
 fun ShoppingPanel(
-    onShoppingSelected: (Shopping) -> Unit = {}, // new parameter
+    onShoppingSelected: (Shopping) -> Unit = {},
     shoppingListvar: List<Shopping>,
     sortByItemTitle: (up: Boolean) -> Unit = {},
     sortByItemPrice: (up: Boolean) -> Unit = {},

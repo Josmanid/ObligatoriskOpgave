@@ -1,10 +1,13 @@
 package com.example.obligatoriskopgave.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -20,9 +23,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxState
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -47,13 +55,14 @@ fun AddScreen(
     addItem: (Shopping) -> Unit,
     onItemDeleted: (Shopping) -> Unit,
     navigateBack: () -> Unit,
-    userEmail: String = "unknown@example.com", // default
+    userEmail: String = "unknown@example.com",
     shoppingListvar: List<Shopping>,
 ) {
     var description by remember { mutableStateOf("") }
     var priceStr by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var imageUrl by remember { mutableStateOf("") }
+
 
     var descError by remember { mutableStateOf(false) }
     var priceError by remember { mutableStateOf(false) }
@@ -67,11 +76,11 @@ fun AddScreen(
                 TopAppBar(
                     title = {
                         Column {
-                            Text("Add Shopping Item",
+                            Text(
+                                "Add Shopping Item",
                                 style = MaterialTheme.typography.headlineLarge
                             )
-                            if (userEmail.isNotEmpty())
-                            {
+                            if (userEmail.isNotEmpty()) {
                                 Text(
                                     text = "Logged in as $userEmail",
                                     style = MaterialTheme.typography.bodySmall
@@ -80,7 +89,7 @@ fun AddScreen(
 
                         }
 
-                }
+                    }
                 )
             }
     ) { innerPadding ->
@@ -121,6 +130,7 @@ fun AddScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
+
             Spacer(modifier = Modifier.height(16.dp))
 
 
@@ -155,7 +165,7 @@ fun AddScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            
+
             Text("My Items:", style = MaterialTheme.typography.titleMedium)
 
             if (myItems.isEmpty()) {
@@ -174,6 +184,7 @@ fun AddScreen(
         }
     }
 }
+
 @Composable
 private fun ShoppingItem(
     shopping: Shopping,
@@ -181,33 +192,40 @@ private fun ShoppingItem(
     onShoppingSelected: (Shopping) -> Unit = {},
     onShoppingDeleted: (Shopping) -> Unit = {}
 ) {
-    Card(
-        modifier = modifier
-            .padding(4.dp)
-            .fillMaxWidth(),
-        onClick = { onShoppingSelected(shopping) }
+    val dismissState = rememberSwipeToDismissBoxState(
+        confirmValueChange = {
+            if (it == SwipeToDismissBoxValue.EndToStart) {
+                onShoppingDeleted(shopping)
+            }
+            true
+        }
+    )
+    SwipeToDismissBox(
+        state = dismissState,
+        enableDismissFromStartToEnd = false,
+        backgroundContent = {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(Color.Red)
+            )
+        }
+
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Card(
+            modifier = modifier
+                .padding(4.dp)
+                .fillMaxWidth(),
+            onClick = { onShoppingSelected(shopping) }
+        )
+        {
             Text(
                 modifier = Modifier.padding(8.dp),
                 text = "${shopping.description}: ${shopping.price} kr"
             )
-            //TODO: Swipe to delete_Lazy Column??
-            Icon(
-                imageVector = Icons.Filled.Delete,
-                contentDescription = "Remove ${shopping.description}",
-                modifier = Modifier
-                    .padding(8.dp)
-                    .clickable { onShoppingDeleted(shopping) }
-            )
         }
     }
 }
-
 
 
 @Preview(showBackground = true)
@@ -221,5 +239,5 @@ fun AddScreenPreview() {
 //        shoppingListvar = emptyList(),
 //        errorMessage = "",
 //        userEmail = ""
-  //  )
+    //  )
 }

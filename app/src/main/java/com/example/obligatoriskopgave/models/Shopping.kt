@@ -8,7 +8,7 @@ data class Shopping(
     val time: Int,
     val pictureUrl: String
 ) {
-    //ekstra constructor fordi vi kan indtaste en ting
+
     override fun toString(): String {
         return "$id, $description, $price, $sellerEmail, $sellerPhone ect.."
     }

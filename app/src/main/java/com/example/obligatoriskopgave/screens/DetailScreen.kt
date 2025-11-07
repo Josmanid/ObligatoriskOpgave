@@ -27,6 +27,9 @@ import com.example.obligatoriskopgave.MainActivity
 import com.example.obligatoriskopgave.NavRoutes
 import com.example.obligatoriskopgave.models.Shopping
 import com.example.obligatoriskopgave.models.ShoppingViewModelState
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.reflect.full.memberProperties
 
 
@@ -42,8 +45,17 @@ fun DetailScreen(
     val shoppingItem = viewModel.shoppingListvar.value.find { it.id == item.toInt() }
 
     if (shoppingItem != null) {
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
+
         val fields = Shopping::class.memberProperties.map { prop ->
-            prop.name to prop.get(shoppingItem)
+            val value = prop.get(shoppingItem)
+            val displayValue = if (prop.name == "time" && value is Int) {
+                val date = Date(value.toLong() * 1000)
+                dateFormat.format(date)
+            } else {
+                value
+            }
+            prop.name to displayValue
         }
 
         Scaffold(
