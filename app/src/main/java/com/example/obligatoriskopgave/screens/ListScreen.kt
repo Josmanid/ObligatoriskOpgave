@@ -1,5 +1,6 @@
 package com.example.obligatoriskopgave.screens
 
+import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -39,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.platform.testTag
@@ -52,6 +54,9 @@ import com.example.obligatoriskopgave.NavRoutes
 import com.example.obligatoriskopgave.models.AuthViewModel
 import com.example.obligatoriskopgave.models.ShoppingViewModelState
 import com.example.obligatoriskopgave.ui.theme.ObligatoriskOpgaveTheme
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.items
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,9 +75,15 @@ fun ListScreen(
 ) {
     Scaffold(
         topBar = {
+            val configuration = LocalConfiguration.current
+            val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
             TopAppBar(
                 title = {
-                    Column {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = if (isLandscape) Alignment.CenterHorizontally else Alignment.Start
+                    ) {
                         Text(
                             text = "Shopping Store",
                             style = MaterialTheme.typography.headlineLarge,
@@ -113,7 +124,7 @@ fun ListScreen(
     ) { innerPadding ->
 
         ShoppingPanel(
-            onShoppingSelected = onShoppingSelected, //pass down
+            onShoppingSelected = onShoppingSelected,
             shoppingListvar = shoppingListvar,
             errorMessage = errorMessage,
             sortByItemTitle = onSortByItemTitle,
@@ -140,7 +151,6 @@ fun ShoppingPanel(
         LazyList(
             items = shoppingListvar,
             onItemClick = { selectedItem ->
-                // pass the actual selected item
                 onShoppingSelected(selectedItem)
             },
             sortByItemTitle = sortByItemTitle,
@@ -150,7 +160,6 @@ fun ShoppingPanel(
         )
     }
 }
-
 @Composable
 fun LazyList(
     items: List<Shopping>,
@@ -160,66 +169,160 @@ fun LazyList(
     onFilter: (String, Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val columns = if(isLandscape) 2 else 1
+
+    Column(modifier = modifier) {
+        FilterSortControls(
+            sortByItemTitle = sortByItemTitle,
+            sortByItemPrice = sortByItemPrice,
+            onFilter = onFilter,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(columns),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            items(items, key = { it.id }) { item ->
+                ShoppingItemCard(
+                    item = item,
+                    onClick = { onItemClick(item) }
+                )
+            }
+        }
+    }
+}
+@Composable
+fun FilterSortControls(
+    sortByItemTitle: (Boolean) -> Unit,
+    sortByItemPrice: (Boolean) -> Unit,
+    onFilter: (String, Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
     val titleUp = "Title \u2191"
     val titleDown = "Title \u2193"
     var sortTitleAscending by remember { mutableStateOf(true) }
     val priceUp = "Price \u2191"
     val priceDown = "Price \u2193"
-    var sortByItemPriceAscending by remember { mutableStateOf(value = true) }
+    var sortByItemPriceAscending by remember { mutableStateOf(true) }
     var filterText by remember { mutableStateOf("") }
     var filterByPrice by remember { mutableStateOf(false) }
 
-    Row(verticalAlignment = Alignment.CenterVertically) {
-
-        Button(
-            onClick = {
-                sortByItemTitle(sortTitleAscending)
-                sortTitleAscending = !sortTitleAscending
-            })
-        {
-            Text(text = if (sortTitleAscending) titleDown else titleUp)
-        }
-        Button(onClick = {
-            sortByItemPrice(sortByItemPriceAscending)
-            sortByItemPriceAscending = !sortByItemPriceAscending
-        })
-        { Text(text = if (sortByItemPriceAscending) priceDown else priceUp) }
-        OutlinedTextField(
-            value = filterText,
-            onValueChange = { filterText = it },
-            label = { Text(if (filterByPrice) "Filter by Price" else "Filter by Text") }
-        )
-
-    }
-    Row {   Button(onClick = { filterByPrice = !filterByPrice },
-        modifier = Modifier.testTag("modeButton")) {
-        Text(if (filterByPrice) "Mode: Price" else "Mode: Title")
-    }
-        Button(
-            onClick = { onFilter(filterText, filterByPrice) },
-        ) { Text("Apply Filter") }
-    }
-
-    LazyColumn(modifier = modifier) {
-        items(items, key = { it.id }) { item ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp)
-                    .clickable { onItemClick(item) } // send full item
+    if (isLandscape) {
+        // Landscape: Alt på én række
+        Row(
+            modifier = modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = {
+                    sortByItemTitle(sortTitleAscending)
+                    sortTitleAscending = !sortTitleAscending
+                }
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text("ID: ${item.id}", style = MaterialTheme.typography.bodyMedium)
-                    Text(
-                        text = "Description: ${item.description}",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    Text(text = "Price: ${item.price}", style = MaterialTheme.typography.bodyMedium)
+                Text(text = if (sortTitleAscending) titleDown else titleUp)
+            }
+            Button(
+                onClick = {
+                    sortByItemPrice(sortByItemPriceAscending)
+                    sortByItemPriceAscending = !sortByItemPriceAscending
+                }
+            ) {
+                Text(text = if (sortByItemPriceAscending) priceDown else priceUp)
+            }
+            OutlinedTextField(
+                value = filterText,
+                onValueChange = { filterText = it },
+                label = { Text(if (filterByPrice) "Filter by price" else "Filter by Text") },
+                modifier = Modifier.weight(1f),
+                singleLine = true
+            )
+            Button(
+                onClick = { filterByPrice = !filterByPrice },
+                modifier = Modifier.testTag("modeButton")
+            ) {
+                Text(if (filterByPrice) "Mode: Price" else "Mode: Title")
+            }
+            Button(
+                onClick = { onFilter(filterText, filterByPrice) }
+            ) {
+                Text("Apply")
+            }
+        }
+    } else {
+        // Portrait: To rækker (som før)
+        Column(modifier = modifier) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Button(
+                    onClick = {
+                        sortByItemTitle(sortTitleAscending)
+                        sortTitleAscending = !sortTitleAscending
+                    }
+                ) {
+                    Text(text = if (sortTitleAscending) titleDown else titleUp)
+                }
+                Button(
+                    onClick = {
+                        sortByItemPrice(sortByItemPriceAscending)
+                        sortByItemPriceAscending = !sortByItemPriceAscending
+                    }
+                ) {
+                    Text(text = if (sortByItemPriceAscending) priceDown else priceUp)
+                }
+                OutlinedTextField(
+                    value = filterText,
+                    onValueChange = { filterText = it },
+                    label = { Text(if (filterByPrice) "Filter by Price" else "Filter by Text") }
+                )
+            }
+            Row {
+                Button(
+                    onClick = { filterByPrice = !filterByPrice },
+                    modifier = Modifier.testTag("modeButton")
+                ) {
+                    Text(if (filterByPrice) "Mode: Price" else "Mode: Title")
+                }
+                Button(
+                    onClick = { onFilter(filterText, filterByPrice) }
+                ) {
+                    Text("Apply Filter")
                 }
             }
         }
     }
 }
+
+@Composable
+fun ShoppingItemCard(
+    item: Shopping,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .clickable { onClick() }
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text("ID: ${item.id}", style = MaterialTheme.typography.bodyMedium)
+            Text(
+                text = "Description: ${item.description}",
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Text(text = "Price: ${item.price}", style = MaterialTheme.typography.bodyMedium)
+        }
+    }
+}
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -327,5 +430,3 @@ fun ShoppingPreview() {
 
     )
 }
-
-

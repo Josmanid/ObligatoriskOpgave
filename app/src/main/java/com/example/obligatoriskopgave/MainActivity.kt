@@ -48,18 +48,7 @@ fun MainScreen(
             onDismiss = { authViewModel.onDismissDialog() }
         )
     }
-    LaunchedEffect(currentUser) {
-        if (currentUser != null) {
-            navController.navigate(NavRoutes.AddScreen.route) {
-                popUpTo(NavRoutes.ListScreen.route)
-            }
-        } else {
-            navController.popBackStack(
-                route = NavRoutes.ListScreen.route,
-                inclusive = false
-            )
-        }
-    }
+
     NavHost(
         navController = navController,
         startDestination = NavRoutes.ListScreen.route

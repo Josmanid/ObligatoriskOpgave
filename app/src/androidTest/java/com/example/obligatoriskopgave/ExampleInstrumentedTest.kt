@@ -4,10 +4,13 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.obligatoriskopgave.screens.ListScreen
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.hasClickAction
 
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,6 +34,29 @@ class ExampleInstrumentedTest {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         assertEquals("com.example.obligatoriskopgave", appContext.packageName)
     }
+
+    @Test
+    fun listScreenTest_shouldDisplayLogoutWhenLoggedIn() {
+        composeTestRule.setContent {
+            ListScreen(
+                shoppingListvar = emptyList(),
+                userEmail = "test@example.com"
+            )
+        }
+
+        composeTestRule.onNodeWithText("Shopping Store")
+            .assertIsDisplayed()
+
+        composeTestRule.onNodeWithText("Logged in as test@example.com")
+            .assertIsDisplayed()
+
+        composeTestRule.onNode(
+            hasText("Logout")
+                    and
+                    hasClickAction()
+        ).assertIsDisplayed()
+    }
+
     @Test
     fun listScreenTest_shouldSwitchMode(){
         //Set up UI:

@@ -67,7 +67,7 @@ fun AddScreen(
     var descError by remember { mutableStateOf(false) }
     var priceError by remember { mutableStateOf(false) }
 
-    // Filter items by the logged-in user's email
+
     val myItems = shoppingListvar.filter { it.sellerEmail == userEmail }
 
     Scaffold(
